@@ -1,11 +1,14 @@
 import requests
-import getpass
+from getpass import getpass
+import json
+
+server_url= "http://localhost:8000/"
 
 def register_user():
     username = input("Enter username: ")
     email = input("Enter email: ")
-    password = getpass.getpass("Enter password: ")
-    confirm_password = getpass.getpass("Confirm password: ")
+    password = getpass("Enter password: ")
+    confirm_password = getpass("Confirm password: ")
     age= input("Enter age: ")
     budget= input("Enter budget: ")
 
@@ -23,7 +26,7 @@ def register_user():
     }
 
     # Configure the URL for your registration endpoint
-    url = "http://localhost:8000/account/register/"
+    url = server_url + "account/register/"
 
     # Send a POST request with JSON payload
     try:
@@ -41,7 +44,7 @@ def register_user():
         
 def help():
 	print(
-		"help: prints this help message \n\n",
+		"\n help: prints this help message \n\n",
 		"register_user: starts new user registration process \n\n",
 		"delete_user: deletes existing user account \n\n",
 		"login: logs you in with the credentials of a registered user",
@@ -53,36 +56,55 @@ def help():
 		"list_reservations (authenticated users only): allows you to list all your reservations \n\n",
 		"create_reservation (authenticated users only): allows you to create a new reservation \n\n",
 		"update_reservation (authenticated users only): allows you to change the number of tickes of a reservation \n\n",
-		"delete_reservation (authenticated users only): allows you to delete a reservation \n\n"
+		"delete_reservation (authenticated users only): allows you to delete a reservation \n"
 	)
 	
 def delete_user(auth_token):
-	url= "http://localhost:8000/account/delete"
-	choice= input("are you sure you want to delete your account? (y/n): ")
-	if choice=="y":
-		response= requests.delete(url)
-		if response.status_code == 204:
-			print("deletion succesful\n")
+	if auth_token != None:
+		url= server_url + "account/delete/"
+		choice= input("are you sure you want to delete your account? (y/n): ")
+		if choice=="y":
+			response= requests.delete(url)
+			if response.status_code == 204:
+				print("deletion succesful\n")
+			else:
+				print("deletion failed\n")
 		else:
-			print("deletion failed\n")
+			print("deletion cancelled\n")
 	else:
-		print("deletion cancelled\n")
+		print("you are not logged in")
 		
 def login(auth_token):
+	url= server_url + "account/token/"
+	username= input("enter your username: ")
+	password= getpass()
+	data= {
+		"username": username,
+		"password": password
+	}
+	response= requests.post(url, json=data)	
 	
+	if response.status_code == 200:
+		auth_token= response.json()["token"]
+		print("login successful\n")
+	else:
+		print("login failed\n")
 
 if __name__ == '__main__':
 	current_action = "default"
 	auth_token = None
 	while(current_action != "quit"):
-		current_action = input("Please specify an action (type help for more information about available actions): ")
+		current_action = input("please specify an action (type help for more information about available actions): ")
 		match current_action:
 			case "register_user":
 				register_user()
 			case "help":
 				help()
+			case "login":
+				login(auth_token)
 			case _:
-				print("invalid command (type help to list available actions)")  			
+				if(current_action != "quit"):
+					print("invalid command (type help to list available actions)")  			
     			
     			
     			
