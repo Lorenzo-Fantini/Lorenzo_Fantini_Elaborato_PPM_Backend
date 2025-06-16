@@ -47,8 +47,8 @@ def help():
 		"\n help: prints this help message \n\n",
 		"register_user: starts new user registration process \n\n",
 		"delete_user: deletes existing user account \n\n",
-		"login: logs you in with the credentials of a registered user",
-		"logout: logs you out",
+		"login: logs you in with the credentials of a registered user\n\n",
+		"logout: logs you out\n\n",
 		"list_events: lists available events \n\n",
 		"get_event_details: prints the details of a specific event \n\n",
 		"create_event (admin only): allows you to create a new event \n\n",
@@ -77,7 +77,7 @@ def delete_user(auth_token):
 def login(auth_token):
 	url= server_url + "account/token/"
 	username= input("enter your username: ")
-	password= getpass()
+	password= getpass("enter your password: ")
 	data= {
 		"username": username,
 		"password": password
@@ -89,6 +89,17 @@ def login(auth_token):
 		print("login successful\n")
 	else:
 		print("login failed\n")
+
+def logout(auth_token):
+	auth_token= None
+	print("logged out\n")
+	
+def list_events():
+	url= server_url + "events/list/"
+	response= requests.get(url)
+	
+	print("\navailable events:\n")
+	print(response.json())
 
 if __name__ == '__main__':
 	current_action = "default"
@@ -102,6 +113,8 @@ if __name__ == '__main__':
 				help()
 			case "login":
 				login(auth_token)
+			case "list_events":
+				list_events()
 			case _:
 				if(current_action != "quit"):
 					print("invalid command (type help to list available actions)")  			
