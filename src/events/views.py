@@ -1,5 +1,5 @@
 from django.http import JsonResponse
-from events.serializers import GetEventSerializer, DetailEventSerializer
+from events.serializers import GetEventSerializer, DetailEventSerializer, CreateEventSerializer
 from events.models import Event
 from rest_framework.response import Response
 from rest_framework import generics

@@ -1,5 +1,5 @@
 from django.http import JsonResponse
-from .serializers import ReservationSerializer
+from .serializers import ListReservationSerializer, CreateReservationSerializer
 from django.contrib.auth.models import User
 from .models import Reservation
 from events.models import Event

@@ -15,7 +15,7 @@ class RegistrationSerializer(serializers.ModelSerializer):
 		]
 		
 	def validate(self, attrs):
-		if User.objects.filter(username= attrs.get("username")).exists()
+		if User.objects.filter(username= attrs.get("username")).exists():
 			raise serializers.ValidationError({"username": "Username already exists"})
 		if attrs.get("age") < 0 or attrs.get("age") > 122:
 			raise serializers.ValidationError({"age": "Invalid age"})

@@ -2,6 +2,7 @@ from django.shortcuts import render
 from rest_framework import generics
 from .serializers import RegistrationSerializer
 from django.contrib.auth import get_user_model
+from rest_framework.permissions import IsAuthenticated
 
 User = get_user_model()
 

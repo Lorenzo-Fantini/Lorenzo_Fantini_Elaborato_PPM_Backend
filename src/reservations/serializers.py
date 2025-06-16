@@ -2,6 +2,9 @@ from rest_framework import serializers
 from .models import Reservation
 from events.models import Event
 from datetime import date
+from django.contrib.auth import get_user_model
+
+User= get_user_model()
 
 class ListReservationSerializer(serializers.ModelSerializer):
 	class Meta:
