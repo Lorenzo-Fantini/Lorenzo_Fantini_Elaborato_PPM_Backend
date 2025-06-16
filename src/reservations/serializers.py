@@ -22,6 +22,13 @@ class ListReservationSerializer(serializers.ModelSerializer):
 				raise serializers.ValidationError({"tickets": "Invalid number of tickets"})
 			return num_tickets_value
 			
+class UpdateReservationSerializer(serializers.ModelSerializer):
+	class Meta:
+		model= Reservation
+		fields= (
+			"num_tickets",
+		)
+			
 class CreateReservationSerializer(serializers.ModelSerializer):
 	user= serializers.SlugRelatedField(
         queryset= User.objects.all(),
@@ -36,8 +43,55 @@ class CreateReservationSerializer(serializers.ModelSerializer):
 			"num_tickets",
 		)
 		
-		def validate_event(self, event_name):
-			event_id= Event.objects.filter(name= event_name)
+		def validate(self, data):
+			request = self.context.get("request")
+			user= request.user
+			event= data.get("event")
+			event_id= Event.objects.filter(name= event)
+			user_age= User.objects.filter(username= user)
+			event_age= Event.object.filter(title= event)
+			
 			if Reservation.objects.filter(event= event_id).exists():
 				raise serializers.ValidationError({"event": "Reservation for that event already exists"})
-			return event_name
+			if user_age < event_age:
+				raise serializers.ValidationError({"user": "You're too young to make a reservation for this event"})
+			return data
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			

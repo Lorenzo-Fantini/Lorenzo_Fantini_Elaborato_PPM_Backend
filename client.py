@@ -2,7 +2,6 @@ import requests
 import getpass
 
 def register_user():
-    print("=== User Registration ===")
     username = input("Enter username: ")
     email = input("Enter email: ")
     password = getpass.getpass("Enter password: ")
@@ -39,12 +38,71 @@ def register_user():
                 print(f"{field}: {messages}")
     except requests.RequestException as e:
         print("Error connecting to the API:", e)
+        
+def help():
+	print(
+		"help: prints this help message \n\n",
+		"register_user: starts new user registration process \n\n",
+		"delete_user: deletes existing user account \n\n",
+		"login: logs you in with the credentials of a registered user",
+		"logout: logs you out",
+		"list_events: lists available events \n\n",
+		"get_event_details: prints the details of a specific event \n\n",
+		"create_event (admin only): allows you to create a new event \n\n",
+		"delete_event (admin only): allows you to delete a specific event \n\n",
+		"list_reservations (authenticated users only): allows you to list all your reservations \n\n",
+		"create_reservation (authenticated users only): allows you to create a new reservation \n\n",
+		"update_reservation (authenticated users only): allows you to change the number of tickes of a reservation \n\n",
+		"delete_reservation (authenticated users only): allows you to delete a reservation \n\n"
+	)
+	
+def delete_user(auth_token):
+	url= "http://localhost:8000/account/delete"
+	choice= input("are you sure you want to delete your account? (y/n): ")
+	if choice=="y":
+		response= requests.delete(url)
+		if response.status_code == 204:
+			print("deletion succesful\n")
+		else:
+			print("deletion failed\n")
+	else:
+		print("deletion cancelled\n")
+		
+def login(auth_token):
+	
 
 if __name__ == '__main__':
-	current_action= "default"
-	token= None
+	current_action = "default"
+	auth_token = None
 	while(current_action != "quit"):
-		current_action= input("specify action: ")
+		current_action = input("Please specify an action (type help for more information about available actions): ")
 		match current_action:
 			case "register_user":
-    			register_user()
+				register_user()
+			case "help":
+				help()
+			case _:
+				print("invalid command (type help to list available actions)")  			
+    			
+    			
+    			
+    			
+    			
+    			
+    			
+    			
+    			
+    			
+    			
+    			
+    			
+    			
+    			
+    			
+    			
+    			
+    			
+    			
+    			
+    			
+    			

@@ -3,6 +3,7 @@ from rest_framework import generics
 from .serializers import RegistrationSerializer
 from django.contrib.auth import get_user_model
 from rest_framework.permissions import IsAuthenticated
+from rest_framework.authentication import TokenAuthentication
 
 User = get_user_model()
 
@@ -13,11 +14,17 @@ class UserCreateAPIView(generics.CreateAPIView):
 	serializer_class= RegistrationSerializer
 	
 class UserDeleteAPIView(generics.DestroyAPIView):
-	queryset= User.objects.all()
-	lookup_field= "username"
+	authentication_classes= [
+		TokenAuthentication,
+	]
 	permission_classes= [
-		IsAuthenticated
+		IsAuthenticated,
 	]
 	
-	def perform_destroy(instance):
-		super.perform_destroy(instance)
+	def get_object(self):
+        # Always returns the instance of the currently authenticated user.
+		return self.request.user
+
+	def perform_destroy(self, instance):
+        # Add any additional pre-deletion logic here if needed.
+		instance.delete()

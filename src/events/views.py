@@ -4,6 +4,7 @@ from events.models import Event
 from rest_framework.response import Response
 from rest_framework import generics
 from rest_framework.decorators import permission_classes
+from rest_framework.authentication import TokenAuthentication
 from rest_framework.permissions import IsAdminUser
 
 # Create your views here.
@@ -20,6 +21,9 @@ class EventDetailAPIView(generics.RetrieveAPIView):
 class EventCreateAPIView(generics.CreateAPIView):
 	queryset= Event.objects.all()
 	serializer_class= CreateEventSerializer
+	authentiation_classes= [
+		TokenAuthentication
+	]
 	permission_classes= [
 		IsAdminUser,
 	]
@@ -27,6 +31,9 @@ class EventCreateAPIView(generics.CreateAPIView):
 class EventDeleteAPIView(generics.DestroyAPIView):
 	queryset= Event.objects.all()
 	lookup_field= "title"
+	authentiation_classes= [
+		TokenAuthentication
+	]
 	permission_classes= [
 		IsAdminUser,
 	]
