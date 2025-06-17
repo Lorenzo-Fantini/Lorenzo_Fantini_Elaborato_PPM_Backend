@@ -75,21 +75,24 @@ def delete_user(auth_token_var):
 	else:
 		print("you are not logged in")
 		
-def login():
-	url= server_url + "account/token/"
-	username= input("enter your username: ")
-	password= getpass("enter your password: ")
-	data= {
-		"username": username,
-		"password": password
-	}
-	response= requests.post(url, json=data)	
-	
-	if response.status_code == 200:
-		print("login successful\n")
-		return response.json()["token"]
+def login(auth_token_var):
+	if auth_token_var is not None:
+		print("you are already logged in")
 	else:
-		print("login failed\n")
+		url= server_url + "account/token/"
+		username= input("enter your username: ")
+		password= getpass("enter your password: ")
+		data= {
+			"username": username,
+			"password": password
+		}
+		response= requests.post(url, json=data)
+
+		if response.status_code == 200:
+			print("login successful\n")
+			return response.json()["token"]
+		else:
+			print("login failed\n")
 
 def logout(auth_token_var):
 	if auth_token_var is None:
@@ -141,13 +144,33 @@ def create_event(admin_auth_token):
 
 	try:
 		response = requests.post(url, json=data, headers=headers)
-		print()
 		if response.status_code == 201:
 			print("creation successful")
 		else:
 			# If you receive an error, print out the details
 			errors = response.json()
 			print("creation failed:")
+			for field, messages in errors.items():
+				print(f"{field}: {messages}")
+	except requests.RequestException as e:
+		print("Error connecting to the API:", e)
+
+def delete_event(admin_auth_token):
+	event= input("insert title of event to delete: ")
+	url= server_url + "events/delete/" + event + "/"
+
+	headers = {
+		"Authorization": f"Token {admin_auth_token}"
+	}
+
+	try:
+		response = requests.delete(url, headers=headers)
+		if response.status_code == 204:
+			print("deletion successful")
+		else:
+			# If you receive an error, print out the details
+			errors = response.json()
+			print("deletion failed")
 			for field, messages in errors.items():
 				print(f"{field}: {messages}")
 	except requests.RequestException as e:
@@ -165,7 +188,7 @@ if __name__ == '__main__':
 			case "help":
 				help()
 			case "login":
-				auth_token= login()
+				auth_token= login(auth_token)
 			case "logout":
 				auth_token= logout(auth_token)
 			case "list_events":
@@ -174,6 +197,8 @@ if __name__ == '__main__':
 				get_event_details()
 			case "create_event":
 				create_event(auth_token)
+			case "delete_event":
+				delete_event(auth_token)
 			case _:
 				if current_action != "quit":
 					print("invalid command (type help to list available actions)")
