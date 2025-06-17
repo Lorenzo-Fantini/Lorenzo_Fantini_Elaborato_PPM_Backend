@@ -80,8 +80,8 @@ def login(auth_token_var):
 		print("you are already logged in")
 	else:
 		url= server_url + "account/token/"
-		username= input("enter your username: ")
-		password= getpass("enter your password: ")
+		username= input("\nenter your username: ")
+		password= getpass("\nenter your password: ")
 		data= {
 			"username": username,
 			"password": password
@@ -89,16 +89,16 @@ def login(auth_token_var):
 		response= requests.post(url, json=data)
 
 		if response.status_code == 200:
-			print("login successful\n")
+			print("\nlogin successful\n")
 			return response.json()["token"]
 		else:
 			print("login failed\n")
 
 def logout(auth_token_var):
 	if auth_token_var is None:
-		print("you are not logged in\n")
+		print("\nyou are not logged in\n")
 	else:
-		print("logged out\n")
+		print("\nlogged out\n")
 		return None
 	
 def list_events():
@@ -176,6 +176,20 @@ def delete_event(admin_auth_token):
 	except requests.RequestException as e:
 		print("Error connecting to the API:", e)
 
+def list_reservations(auth_token_var):
+	url= server_url + "reservations/list/"
+
+	headers = {
+		"Authorization": f"Token {auth_token_var}"
+	}
+
+	response = requests.get(url, headers=headers)
+
+	print("\ncurrent reservations:\n")
+	for event in response.json():
+		print(event)
+		print("\n")
+
 if __name__ == '__main__':
 	current_action = "default"
 	auth_token = None
@@ -199,6 +213,8 @@ if __name__ == '__main__':
 				create_event(auth_token)
 			case "delete_event":
 				delete_event(auth_token)
+			case "list_reservations":
+				list_reservations(auth_token)
 			case _:
 				if current_action != "quit":
 					print("invalid command (type help to list available actions)")
