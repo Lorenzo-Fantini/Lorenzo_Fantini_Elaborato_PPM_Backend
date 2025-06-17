@@ -114,6 +114,45 @@ def get_event_details():
 
 	print(response.json())
 
+def create_event(admin_auth_token):
+	url= server_url + "events/create/"
+
+	title= input("enter event title: ")
+	description= input("enter event description: ")
+	location= input("enter event location: ")
+	date_and_time= input("please enter the date and time of the event (in json format): ")
+	ticket_price= input("please enter the ticket price: ")
+	available_tickets= input("please enter the number of tickets: ")
+	age= input("pleaser enter the event age (0/14/18): ")
+
+	data= {
+		"title": title,
+		"description": description,
+		"location": location,
+		"date_and_time": date_and_time,
+		"ticket_price": ticket_price,
+		"available_tickets": available_tickets,
+		"age": age
+	}
+
+	headers= {
+		"Authorization": f"Token {admin_auth_token}"
+	}
+
+	try:
+		response = requests.post(url, json=data, headers=headers)
+		print()
+		if response.status_code == 201:
+			print("creation successful")
+		else:
+			# If you receive an error, print out the details
+			errors = response.json()
+			print("creation failed:")
+			for field, messages in errors.items():
+				print(f"{field}: {messages}")
+	except requests.RequestException as e:
+		print("Error connecting to the API:", e)
+
 if __name__ == '__main__':
 	current_action = "default"
 	auth_token = None
@@ -133,6 +172,8 @@ if __name__ == '__main__':
 				list_events()
 			case "get_event_details":
 				get_event_details()
+			case "create_event":
+				create_event(auth_token)
 			case _:
 				if current_action != "quit":
 					print("invalid command (type help to list available actions)")
