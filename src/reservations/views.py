@@ -1,4 +1,3 @@
-from django.http import JsonResponse
 from .serializers import ListReservationSerializer, CreateReservationSerializer, UpdateReservationSerializer
 from django.contrib.auth.models import User
 from .models import Reservation
@@ -14,7 +13,7 @@ from rest_framework import generics
 class UserReservationListAPIView(generics.ListAPIView):
 	queryset= Reservation.objects.all()
 	serializer_class= ListReservationSerializer
-	authentiation_classes= [
+	authentication_classes= [
 		TokenAuthentication
 	]
 	permission_classes= [
@@ -28,17 +27,25 @@ class UserReservationListAPIView(generics.ListAPIView):
 class UserReservationCreateAPIView(generics.CreateAPIView):
 	queryset= Reservation.objects.all()
 	serializer_class= CreateReservationSerializer
-	authentiation_classes= [
+	authentication_classes= [
 		TokenAuthentication
 	]
 	permission_classes= [
 		IsAuthenticated,
 	]
 
+	def perform_create(self, serializer):
+		user = self.request.user
+		# Get the event and number of tickets from the data validated by the serializer
+		event = serializer.validated_data['event']
+		num_tickets = serializer.validated_data['num_tickets']
+
+
+
 class UserReservationUpdateAPIView(generics.UpdateAPIView):
 	queryset= Reservation.objects.all()
 	serializer_classes= UpdateReservationSerializer
-	authentiation_classes= [
+	authentication_classes= [
 		TokenAuthentication
 	]
 	permission_classes= [
@@ -53,7 +60,7 @@ class UserReservationUpdateAPIView(generics.UpdateAPIView):
 class UserReservationDeleteAPIView(generics.DestroyAPIView):
 	queryset= Reservation.objects.all()
 	lookup_field= "event"
-	authentiation_classes= [
+	authentication_classes= [
 		TokenAuthentication
 	]
 	permission_classes= [

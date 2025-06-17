@@ -22,9 +22,9 @@ class UserDeleteAPIView(generics.DestroyAPIView):
 	]
 	
 	def get_object(self):
-        # Always returns the instance of the currently authenticated user.
+		# Always returns the instance of the currently authenticated user.
 		return self.request.user
 
 	def perform_destroy(self, instance):
-        # Add any additional pre-deletion logic here if needed.
+		# Add any additional pre-deletion logic here if needed.
 		instance.delete()

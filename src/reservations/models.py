@@ -8,6 +8,6 @@ class Reservation(models.Model):
     num_tickets= models.PositiveIntegerField(default= 1)
     
     class Meta:
-    	unique_together= (
+        unique_together= (
     		("user", "event"),
     	)

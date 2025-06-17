@@ -1,7 +1,6 @@
 from rest_framework import serializers
 from .models import Reservation
-from events.models import Event
-from datetime import date
+from django.db import transaction
 from django.contrib.auth import get_user_model
 
 User= get_user_model()
@@ -43,55 +42,39 @@ class CreateReservationSerializer(serializers.ModelSerializer):
 			"num_tickets",
 		)
 		
-		def validate(self, data):
-			request = self.context.get("request")
-			user= request.user
-			event= data.get("event")
-			event_id= Event.objects.filter(name= event)
-			user_age= User.objects.filter(username= user)
-			event_age= Event.object.filter(title= event)
-			
-			if Reservation.objects.filter(event= event_id).exists():
-				raise serializers.ValidationError({"event": "Reservation for that event already exists"})
-			if user_age < event_age:
-				raise serializers.ValidationError({"user": "You're too young to make a reservation for this event"})
-			return data
-			
-			
-			
-			
-			
-			
-			
-			
-			
-			
-			
-			
-			
-			
-			
-			
-			
-			
-			
-			
-			
-			
-			
-			
-			
-			
-			
-			
-			
-			
-			
-			
-			
-			
-			
-			
-			
-			
-			
+	def validate(self, data):
+		user = self.context['request'].user
+		event = data.get('event')
+		num_tickets = data.get('num_tickets')
+		total_cost = num_tickets * event.ticket_price
+
+		if Reservation.objects.filter(event= event.title).exists():
+			raise serializers.ValidationError({"event": "Reservation for that event "
+														"already exists"})
+		if user.age < event.age:
+			raise serializers.ValidationError({"user": "You're too young to make a "
+													   "reservation for this event"})
+		if event.available_tickets < num_tickets:
+			raise serializers.ValidationError("Not enough tickets available for this event.")
+		if user.budget < total_cost:
+			raise serializers.ValidationError("Insufficient budget to complete this reservation.")
+		return data
+
+	def create(self, validated_data):
+		user = self.context['request'].user
+		event = validated_data['event']
+		num_tickets = validated_data['num_tickets']
+		total_cost = num_tickets * event.ticket_price
+
+		with transaction.atomic():
+			# Update event's available tickets
+			event.available_tickets -= num_tickets
+			event.save()
+
+			# Update user's budget
+			user.budget -= total_cost
+			user.save()
+
+			# Save the reservation with the authenticated user
+			reservation = Reservation.objects.create(user=user, **validated_data)
+		return reservation

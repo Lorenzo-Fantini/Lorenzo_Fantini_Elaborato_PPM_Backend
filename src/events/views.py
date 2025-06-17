@@ -21,7 +21,7 @@ class EventDetailAPIView(generics.RetrieveAPIView):
 class EventCreateAPIView(generics.CreateAPIView):
 	queryset= Event.objects.all()
 	serializer_class= CreateEventSerializer
-	authentiation_classes= [
+	authentication_classes= [
 		TokenAuthentication
 	]
 	permission_classes= [
@@ -31,12 +31,12 @@ class EventCreateAPIView(generics.CreateAPIView):
 class EventDeleteAPIView(generics.DestroyAPIView):
 	queryset= Event.objects.all()
 	lookup_field= "title"
-	authentiation_classes= [
+	authentication_classes= [
 		TokenAuthentication
 	]
 	permission_classes= [
 		IsAdminUser,
 	]
 	
-	def perform_destroy(instance):
+	def perform_destroy(self, instance):
 		super.perform_destroy(instance)

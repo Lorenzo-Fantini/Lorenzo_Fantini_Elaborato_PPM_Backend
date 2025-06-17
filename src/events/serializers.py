@@ -27,7 +27,6 @@ class CreateEventSerializer(serializers.ModelSerializer):
 	class Meta:
 		model= Event
 		fields= (
-			"event_id",
 			"title",
 			"description",
 			"location",
@@ -43,14 +42,9 @@ class CreateEventSerializer(serializers.ModelSerializer):
 			if attrs.get("ticket_price") <= 0:
 				raise serializers.ValidationError({"ticket_price": "Invalid value"})
 			if attrs.get("available_tickets") <= 0:
-				raise serializers.ValidationError({"availabel_tickets": "Invalid value"})
+				raise serializers.ValidationError({"available_tickets": "Invalid value"})
 			return attrs
 			
 		def create(self, validated_data):
 			event= Event.objects.create(**validated_data)
 			return event
-			
-			
-			
-			
-			 
