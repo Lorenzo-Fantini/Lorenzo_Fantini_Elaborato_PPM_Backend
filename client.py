@@ -63,9 +63,12 @@ def register_user():
 def delete_user(auth_token_var):
 	if auth_token_var is not None:
 		url= server_url + "account/delete/"
+		headers = {
+			"Authorization": f"Token {auth_token_var}"
+		}
 		choice= input("are you sure you want to delete your account? (y/n): ")
 		if choice=="y":
-			response= requests.delete(url)
+			response= requests.delete(url, headers=headers)
 			if response.status_code == 204:
 				print("deletion successful\n")
 			else:
@@ -90,16 +93,19 @@ def login(auth_token_var):
 
 		if response.status_code == 200:
 			print("\nlogin successful\n")
-			return response.json()["token"]
+			auth_token_var= response.json()["token"]
 		else:
 			print("login failed\n")
+
+	return auth_token_var
 
 def logout(auth_token_var):
 	if auth_token_var is None:
 		print("\nyou are not logged in\n")
 	else:
 		print("\nlogged out\n")
-		return None
+
+	return None
 	
 def list_events():
 	url= server_url + "events/list/"
@@ -186,9 +192,37 @@ def list_reservations(auth_token_var):
 	response = requests.get(url, headers=headers)
 
 	print("\ncurrent reservations:\n")
-	for event in response.json():
-		print(event)
+	for reservation in response.json():
+		print(reservation)
 		print("\n")
+
+def create_reservation(auth_token_var):
+	url= server_url + "reservations/create/"
+
+	event= input("\nenter the name of the event you want to buy tickets for: ")
+	num_tickets= input("\nenter the number of tickets you want to buy: ")
+
+	data= {
+		"event": event,
+		"num_tickets": num_tickets
+	}
+
+	headers = {
+		"Authorization": f"Token {auth_token_var}"
+	}
+
+	try:
+		response = requests.post(url, json=data, headers=headers)
+		if response.status_code == 201:
+			print("reservation created successfully")
+		else:
+			# If you receive an error, print out the details
+			errors = response.json()
+			print("reservation creation failed:")
+			for field, messages in errors.items():
+				print(f"{field}: {messages}")
+	except requests.RequestException as e:
+		print("Error connecting to the API:", e)
 
 if __name__ == '__main__':
 	current_action = "default"
@@ -199,6 +233,8 @@ if __name__ == '__main__':
 		match current_action:
 			case "register_user":
 				register_user()
+			case "delete_user":
+				delete_user(auth_token)
 			case "help":
 				help()
 			case "login":
@@ -215,6 +251,8 @@ if __name__ == '__main__':
 				delete_event(auth_token)
 			case "list_reservations":
 				list_reservations(auth_token)
+			case "create_reservation":
+				create_reservation(auth_token)
 			case _:
 				if current_action != "quit":
 					print("invalid command (type help to list available actions)")

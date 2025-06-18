@@ -1,4 +1,5 @@
-from .serializers import ListReservationSerializer, CreateReservationSerializer, UpdateReservationSerializer
+from .serializers import (ListReservationSerializer, CreateReservationSerializer,
+						  UpdateReservationSerializer)
 from django.contrib.auth.models import User
 from .models import Reservation
 from events.models import Event
@@ -7,6 +8,7 @@ from rest_framework.response import Response
 from rest_framework.permissions import IsAuthenticated
 from rest_framework.authentication import TokenAuthentication
 from rest_framework import generics
+from django.db import transaction
 
 # Create your views here.
 
@@ -34,13 +36,20 @@ class UserReservationCreateAPIView(generics.CreateAPIView):
 		IsAuthenticated,
 	]
 
+	@transaction.atomic
 	def perform_create(self, serializer):
 		user = self.request.user
-		# Get the event and number of tickets from the data validated by the serializer
 		event = serializer.validated_data['event']
 		num_tickets = serializer.validated_data['num_tickets']
+		total_cost = num_tickets * event.ticket_price
 
+		event.available_tickets -= num_tickets
+		event.save(update_fields=["available_tickets"])
 
+		user.budget -= total_cost
+		user.save(update_fields=["budget"])
+
+		serializer.save(user=user)
 
 class UserReservationUpdateAPIView(generics.UpdateAPIView):
 	queryset= Reservation.objects.all()
@@ -52,10 +61,8 @@ class UserReservationUpdateAPIView(generics.UpdateAPIView):
 		IsAuthenticated,
 	]
 	lookup_field= "event"
-	
-	def get_queryset(self):
-		qs= super().get_queryset()
-		return qs.filter(user= self.request.user)
+
+
 
 class UserReservationDeleteAPIView(generics.DestroyAPIView):
 	queryset= Reservation.objects.all()
@@ -66,6 +73,3 @@ class UserReservationDeleteAPIView(generics.DestroyAPIView):
 	permission_classes= [
 		IsAuthenticated,
 	]
-	
-	def perform_destroy(self, instance):
-		super.perform_destroy(instance)
