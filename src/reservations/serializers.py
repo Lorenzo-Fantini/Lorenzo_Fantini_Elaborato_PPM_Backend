@@ -58,10 +58,11 @@ class UpdateReservationSerializer(serializers.ModelSerializer):
 
 		if new_num_tickets <= 0 or new_num_tickets > 10:
 			raise serializers.ValidationError({"num_tickets": "Invalid number of tickets"})
-
 		if delta_tickets > 0:
 			delta_cost= delta_tickets * event.ticket_price
 			if user.budget - delta_cost < 0:
 				raise serializers.ValidationError("Insufficient budget")
+			if event.available_tickets - delta_tickets < 0:
+				raise serializers.ValidationError("Not enough tickets left for the event")
 
 		return data

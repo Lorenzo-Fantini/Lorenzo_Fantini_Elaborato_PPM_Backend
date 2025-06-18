@@ -53,7 +53,7 @@ class UserReservationCreateAPIView(generics.CreateAPIView):
 
 class UserReservationUpdateAPIView(generics.UpdateAPIView):
 	queryset= Reservation.objects.all()
-	serializer_classes= UpdateReservationSerializer
+	serializer_class= UpdateReservationSerializer
 	authentication_classes= [
 		TokenAuthentication
 	]
@@ -62,7 +62,22 @@ class UserReservationUpdateAPIView(generics.UpdateAPIView):
 	]
 	lookup_field= "event"
 
+	@transaction.atomic
+	def perform_update(self, serializer):
+		reservation = self.get_object()
+		user = self.request.user
+		event = reservation.event
+		old_num_tickets = reservation.num_tickets
+		new_num_tickets = serializer.validated_data['num_tickets']
+		delta_tickets = new_num_tickets - old_num_tickets
+		delta_cost = delta_tickets * event.ticket_price
 
+		event.available_tickets -= delta_tickets
+		user.budget -= delta_cost
+
+		event.save(update_fields=['available_tickets'])
+		user.save(update_fields=['budget'])
+		serializer.save()
 
 class UserReservationDeleteAPIView(generics.DestroyAPIView):
 	queryset= Reservation.objects.all()

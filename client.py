@@ -224,6 +224,34 @@ def create_reservation(auth_token_var):
 	except requests.RequestException as e:
 		print("Error connecting to the API:", e)
 
+def update_reservation(auth_token_var):
+	reservation= input("\nenter the title of the event of the reservation you want to update: ")
+	new_tickets_num= input("\nenter the new number of tickets: ")
+
+	url= server_url + "reservations/update/" + reservation + "/"
+
+	data= {
+		"reservation": reservation,
+		"num_tickets": new_tickets_num
+	}
+
+	headers = {
+		"Authorization": f"Token {auth_token_var}"
+	}
+
+	try:
+		response = requests.patch(url, json=data, headers=headers)
+		if response.status_code == 200:
+			print("reservation updated successfully")
+		else:
+			# If you receive an error, print out the details
+			errors = response.json()
+			print("reservation creation failed:")
+			for field, messages in errors.items():
+				print(f"{field}: {messages}")
+	except requests.RequestException as e:
+		print("Error connecting to the API:", e)
+
 if __name__ == '__main__':
 	current_action = "default"
 	auth_token = None
@@ -253,6 +281,8 @@ if __name__ == '__main__':
 				list_reservations(auth_token)
 			case "create_reservation":
 				create_reservation(auth_token)
+			case "update_reservation":
+				update_reservation(auth_token)
 			case _:
 				if current_action != "quit":
 					print("invalid command (type help to list available actions)")
