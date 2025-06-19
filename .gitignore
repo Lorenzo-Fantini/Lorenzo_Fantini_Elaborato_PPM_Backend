@@ -1,0 +1,14 @@
+/elaborato_backend_venv/
+/.idea/.gitignore
+/src/transactions/migrations/0001_initial.py
+/src/transactions/migrations/0002_transaction_amount.py
+/src/transactions/migrations/0003_alter_transaction_amount.py
+/src/transactions/migrations/0004_alter_transaction_num_tickets.py
+/src/transactions/migrations/0005_alter_transaction_unique_together.py
+/.idea/dataSources.xml
+/.idea/misc.xml
+/.idea/modules.xml
+/.idea/inspectionProfiles/profiles_settings.xml
+/src/requirements.txt
+/.idea/test_project.iml
+/.idea/vcs.xml
