@@ -1,5 +1,5 @@
 from .serializers import (ListReservationSerializer, CreateReservationSerializer,
-						  UpdateReservationSerializer)
+						  UpdateReservationSerializer, DeleteReservationSerializer)
 from django.contrib.auth.models import User
 from .models import Reservation
 from events.models import Event
@@ -81,10 +81,24 @@ class UserReservationUpdateAPIView(generics.UpdateAPIView):
 
 class UserReservationDeleteAPIView(generics.DestroyAPIView):
 	queryset= Reservation.objects.all()
-	lookup_field= "event"
+	serializer_class = DeleteReservationSerializer
 	authentication_classes= [
 		TokenAuthentication
 	]
 	permission_classes= [
 		IsAuthenticated,
 	]
+	lookup_field = "event"
+
+	@transaction.atomic
+	def perform_destroy(self, instance):
+		reservation= self.get_object()
+		user = self.request.user
+		event = reservation.event
+
+		event.available_tickets += reservation.num_tickets
+		user.budget += event.ticket_price * reservation.num_tickets
+
+		event.save(update_fields=['available_tickets'])
+		user.save(update_fields=['budget'])
+		reservation.delete()

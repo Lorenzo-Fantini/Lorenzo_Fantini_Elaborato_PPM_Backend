@@ -19,19 +19,20 @@ def help():
 		"create_reservation (authenticated users only): allows you to create a new reservation \n\n",
 		"update_reservation (authenticated users only): allows you to change the number of tickets "
 		"of a reservation \n\n",
-		"delete_reservation (authenticated users only): allows you to delete a reservation \n"
+		"delete_reservation (authenticated users only): allows you to delete a reservation \n\n",
+		"quit: exit the client\n"
 	)
 
 def register_user():
-	username = input("Enter username: ")
-	email = input("Enter email: ")
-	password = getpass("Enter password: ")
-	confirm_password = getpass("Confirm password: ")
-	age= input("Enter age: ")
-	budget= input("Enter budget: ")
+	username = input("\nEnter username: ")
+	email = input("\nEnter email: ")
+	password = getpass("\nEnter password: ")
+	confirm_password = getpass("\nConfirm password: ")
+	age= input("\nEnter age: ")
+	budget= input("\nEnter budget: ")
 
 	if password != confirm_password:
-		print("Error: Passwords do not match!")
+		print("\nError: Passwords do not match!")
 		return
 
 	# Prepare the data payload
@@ -50,15 +51,15 @@ def register_user():
 	try:
 		response = requests.post(url, json=data)
 		if response.status_code == 201:
-			print("Registration successful!")
+			print("\nRegistration successful\n")
 		else:
 			# If you receive an error, print out the details
 			errors = response.json()
-			print("Registration failed:")
+			print("\nRegistration failed:")
 			for field, messages in errors.items():
 				print(f"{field}: {messages}")
 	except requests.RequestException as e:
-		print("Error connecting to the API:", e)
+		print("\nError connecting to the API:", e)
 	
 def delete_user(auth_token_var):
 	if auth_token_var is not None:
@@ -66,25 +67,25 @@ def delete_user(auth_token_var):
 		headers = {
 			"Authorization": f"Token {auth_token_var}"
 		}
-		choice= input("are you sure you want to delete your account? (y/n): ")
+		choice= input("\nAre you sure you want to delete your account? (y/n): ")
 		if choice=="y":
 			response= requests.delete(url, headers=headers)
 			if response.status_code == 204:
-				print("deletion successful\n")
+				print("\nDeletion successful\n")
 			else:
-				print("deletion failed\n")
+				print("\nDeletion failed\n")
 		else:
-			print("deletion cancelled\n")
+			print("\nDeletion cancelled\n")
 	else:
-		print("you are not logged in")
+		print("\nYou are not logged in\n")
 		
 def login(auth_token_var):
 	if auth_token_var is not None:
-		print("you are already logged in")
+		print("\nYou are already logged in\n")
 	else:
 		url= server_url + "account/token/"
-		username= input("\nenter your username: ")
-		password= getpass("\nenter your password: ")
+		username= input("\nEnter your username: ")
+		password= getpass("\nEnter your password: ")
 		data= {
 			"username": username,
 			"password": password
@@ -92,33 +93,36 @@ def login(auth_token_var):
 		response= requests.post(url, json=data)
 
 		if response.status_code == 200:
-			print("\nlogin successful\n")
+			print("\nLogin successful\n")
 			auth_token_var= response.json()["token"]
 		else:
-			print("login failed\n")
+			print("\nLogin failed\n")
 
 	return auth_token_var
 
 def logout(auth_token_var):
 	if auth_token_var is None:
-		print("\nyou are not logged in\n")
+		print("\nYou are not logged in\n")
 	else:
-		print("\nlogged out\n")
+		print("\nLogged out\n")
 
 	return None
 	
 def list_events():
 	url= server_url + "events/list/"
+	
 	response= requests.get(url)
 	
-	print("\navailable events:\n")
+	print("\nAvailable events:\n")
 	for event in response.json():
 		print(event)
 		print("\n")
 
 def get_event_details():
-	event= input("what event would you like to know more about? (type event title): ")
+	event= input("\nWhat event would you like to know more about? (type event title): ")
+
 	url= server_url + "events/detail/" + event + "/"
+
 	response= requests.get(url)
 
 	print(response.json())
@@ -163,6 +167,7 @@ def create_event(admin_auth_token):
 
 def delete_event(admin_auth_token):
 	event= input("insert title of event to delete: ")
+
 	url= server_url + "events/delete/" + event + "/"
 
 	headers = {
@@ -246,7 +251,33 @@ def update_reservation(auth_token_var):
 		else:
 			# If you receive an error, print out the details
 			errors = response.json()
-			print("reservation creation failed:")
+			print("reservation update failed:")
+			for field, messages in errors.items():
+				print(f"{field}: {messages}")
+	except requests.RequestException as e:
+		print("Error connecting to the API:", e)
+
+def delete_reservation(auth_token_var):
+	reservation = input("\nenter the title of the event of the reservation you want to delete: ")
+
+	url= server_url + "reservations/delete/" + reservation + "/"
+
+	data= {
+		"reservation": reservation
+	}
+
+	headers = {
+		"Authorization": f"Token {auth_token_var}"
+	}
+
+	try:
+		response = requests.delete(url, json=data, headers=headers)
+		if response.status_code == 204:
+			print("reservation deleted successfully")
+		else:
+			# If you receive an error, print out the details
+			errors = response.json()
+			print("reservation deletion failed:")
 			for field, messages in errors.items():
 				print(f"{field}: {messages}")
 	except requests.RequestException as e:
@@ -283,6 +314,8 @@ if __name__ == '__main__':
 				create_reservation(auth_token)
 			case "update_reservation":
 				update_reservation(auth_token)
+			case "delete_reservation":
+				delete_reservation(auth_token)
 			case _:
 				if current_action != "quit":
-					print("invalid command (type help to list available actions)")
+					print("\ninvalid action (type help to list available actions)\n")

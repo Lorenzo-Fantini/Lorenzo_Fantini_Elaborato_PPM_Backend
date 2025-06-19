@@ -66,3 +66,10 @@ class UpdateReservationSerializer(serializers.ModelSerializer):
 				raise serializers.ValidationError("Not enough tickets left for the event")
 
 		return data
+
+class DeleteReservationSerializer(serializers.ModelSerializer):
+	class Meta:
+		Model= Reservation
+		fields= (
+			"event",
+		)

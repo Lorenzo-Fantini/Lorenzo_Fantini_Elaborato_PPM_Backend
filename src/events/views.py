@@ -31,13 +31,13 @@ class EventCreateAPIView(generics.CreateAPIView):
 	
 class EventDeleteAPIView(generics.DestroyAPIView):
 	queryset= Event.objects.all()
-	lookup_field= "title"
 	authentication_classes= [
 		TokenAuthentication
 	]
 	permission_classes= [
 		IsAdminUser,
 	]
-	
+	lookup_field= "title"
+
 	def perform_destroy(self, instance):
 		instance.delete()
