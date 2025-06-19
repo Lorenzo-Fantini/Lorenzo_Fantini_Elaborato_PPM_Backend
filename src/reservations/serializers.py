@@ -1,6 +1,5 @@
 from rest_framework import serializers
 from .models import Reservation
-from django.db import transaction
 from django.contrib.auth import get_user_model
 
 User= get_user_model()
@@ -30,6 +29,12 @@ class CreateReservationSerializer(serializers.ModelSerializer):
 		if Reservation.objects.filter(event=event.title).exists():
 			raise serializers.ValidationError({"event": "Reservation for that event "
 														"already exists"})
+		if event is None or event == "":
+			raise serializers.ValidationError({"event": "You must enter an event"})
+		if num_tickets is None:
+			raise serializers.ValidationError({"num_tickets": "You must enter a number of tickets"})
+		if num_tickets <= 0 or num_tickets > 10:
+			raise serializers.ValidationError({"num_tickets": "Invalid number of tickets"})
 		if user.age < event.age:
 			raise serializers.ValidationError({"user": "You're too young to make a "
 													   "reservation for this event"})
@@ -37,7 +42,8 @@ class CreateReservationSerializer(serializers.ModelSerializer):
 			raise serializers.ValidationError({"num_tickets": ("Not enough tickets available "
 															  "for this event.")})
 		if user.budget < total_cost:
-			raise serializers.ValidationError("Insufficient budget to complete this reservation.")
+			raise serializers.ValidationError({"user": "Insufficient budget to complete this "
+													   "reservation."})
 		return data
 			
 class UpdateReservationSerializer(serializers.ModelSerializer):
@@ -61,9 +67,9 @@ class UpdateReservationSerializer(serializers.ModelSerializer):
 		if delta_tickets > 0:
 			delta_cost= delta_tickets * event.ticket_price
 			if user.budget - delta_cost < 0:
-				raise serializers.ValidationError("Insufficient budget")
+				raise serializers.ValidationError({"user": "Insufficient budget"})
 			if event.available_tickets - delta_tickets < 0:
-				raise serializers.ValidationError("Not enough tickets left for the event")
+				raise serializers.ValidationError({"event": "Not enough tickets left for that event"})
 
 		return data
 

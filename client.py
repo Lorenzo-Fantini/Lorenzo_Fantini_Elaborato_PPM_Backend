@@ -130,13 +130,13 @@ def get_event_details():
 def create_event(admin_auth_token):
 	url= server_url + "events/create/"
 
-	title= input("enter event title: ")
-	description= input("enter event description: ")
-	location= input("enter event location: ")
-	date_and_time= input("please enter the date and time of the event (in json format): ")
-	ticket_price= input("please enter the ticket price: ")
-	available_tickets= input("please enter the number of tickets: ")
-	age= input("pleaser enter the event age (0/14/18): ")
+	title= input("\nenter event title: ")
+	description= input("\nenter event description: ")
+	location= input("\nenter event location: ")
+	date_and_time= input("\nplease enter the date and time of the event (in json format): ")
+	ticket_price= input("\nplease enter the ticket price: ")
+	available_tickets= input("\nplease enter the number of tickets: ")
+	age= input("\npleaser enter the event age (0/14/18): ")
 
 	data= {
 		"title": title,
@@ -155,11 +155,11 @@ def create_event(admin_auth_token):
 	try:
 		response = requests.post(url, json=data, headers=headers)
 		if response.status_code == 201:
-			print("creation successful")
+			print("\ncreation successful")
 		else:
 			# If you receive an error, print out the details
 			errors = response.json()
-			print("creation failed:")
+			print("\ncreation failed:")
 			for field, messages in errors.items():
 				print(f"{field}: {messages}")
 	except requests.RequestException as e:
@@ -177,11 +177,11 @@ def delete_event(admin_auth_token):
 	try:
 		response = requests.delete(url, headers=headers)
 		if response.status_code == 204:
-			print("deletion successful")
+			print("\ndeletion successful")
 		else:
 			# If you receive an error, print out the details
 			errors = response.json()
-			print("deletion failed")
+			print("\ndeletion failed")
 			for field, messages in errors.items():
 				print(f"{field}: {messages}")
 	except requests.RequestException as e:
@@ -219,11 +219,11 @@ def create_reservation(auth_token_var):
 	try:
 		response = requests.post(url, json=data, headers=headers)
 		if response.status_code == 201:
-			print("reservation created successfully")
+			print("\nreservation created successfully")
 		else:
 			# If you receive an error, print out the details
 			errors = response.json()
-			print("reservation creation failed:")
+			print("\nreservation creation failed:")
 			for field, messages in errors.items():
 				print(f"{field}: {messages}")
 	except requests.RequestException as e:
@@ -247,11 +247,11 @@ def update_reservation(auth_token_var):
 	try:
 		response = requests.patch(url, json=data, headers=headers)
 		if response.status_code == 200:
-			print("reservation updated successfully")
+			print("\nreservation updated successfully")
 		else:
 			# If you receive an error, print out the details
 			errors = response.json()
-			print("reservation update failed:")
+			print("\nreservation update failed:")
 			for field, messages in errors.items():
 				print(f"{field}: {messages}")
 	except requests.RequestException as e:
@@ -273,11 +273,11 @@ def delete_reservation(auth_token_var):
 	try:
 		response = requests.delete(url, json=data, headers=headers)
 		if response.status_code == 204:
-			print("reservation deleted successfully")
+			print("\nreservation deleted successfully")
 		else:
 			# If you receive an error, print out the details
 			errors = response.json()
-			print("reservation deletion failed:")
+			print("\nreservation deletion failed:")
 			for field, messages in errors.items():
 				print(f"{field}: {messages}")
 	except requests.RequestException as e:
