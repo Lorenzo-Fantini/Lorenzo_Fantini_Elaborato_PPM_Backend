@@ -1,4 +1,3 @@
-
 from django.contrib.auth import get_user_model
 from rest_framework import serializers
 
@@ -32,3 +31,18 @@ class RegistrationSerializer(serializers.ModelSerializer):
 	def create(self, validated_data):
 		user= User.objects.create_user(**validated_data)
 		return user
+
+class DeleteUserSerializer(serializers.ModelSerializer):
+	class Meta:
+		model= User
+		fields= [
+			"password",
+		]
+
+	def validate_password(self, value):
+			user_password= self.context["user"].user.password
+
+			if user_password != value:
+				raise serializers.ValidationError({"password": "Incorrect password"})
+
+			return value

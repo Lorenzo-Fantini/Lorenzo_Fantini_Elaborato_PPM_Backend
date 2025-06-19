@@ -63,17 +63,28 @@ def register_user():
 	
 def delete_user(auth_token_var):
 	if auth_token_var is not None:
+
 		url= server_url + "account/delete/"
+
 		headers = {
 			"Authorization": f"Token {auth_token_var}"
 		}
+
 		choice= input("\nAre you sure you want to delete your account? (y/n): ")
 		if choice=="y":
-			response= requests.delete(url, headers=headers)
-			if response.status_code == 204:
-				print("\nDeletion successful\n")
+			password= input("\nEnter your password: ")
+			if password is None or password == "":
+				print("\nYou must enter your password\n")
 			else:
-				print("\nDeletion failed\n")
+				data= {
+					"password": password
+				}
+
+				response= requests.delete(url, data=data, headers=headers)
+				if response.status_code == 204:
+					print("\nDeletion successful\n")
+				else:
+					print("\nDeletion failed\n")
 		else:
 			print("\nDeletion cancelled\n")
 	else:
