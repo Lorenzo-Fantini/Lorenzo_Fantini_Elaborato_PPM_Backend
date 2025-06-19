@@ -1,10 +1,7 @@
 from .serializers import (ListReservationSerializer, CreateReservationSerializer,
 						  UpdateReservationSerializer, DeleteReservationSerializer)
-from django.contrib.auth.models import User
 from .models import Reservation
-from events.models import Event
-from rest_framework.decorators import permission_classes
-from rest_framework.response import Response
+from transactions.models import Transaction
 from rest_framework.permissions import IsAuthenticated
 from rest_framework.authentication import TokenAuthentication
 from rest_framework import generics
@@ -51,6 +48,14 @@ class UserReservationCreateAPIView(generics.CreateAPIView):
 
 		serializer.save(user=user)
 
+		Transaction.objects.create(
+			user=user,
+			event=event,
+			amount=total_cost,
+			num_tickets=num_tickets
+		)
+
+
 class UserReservationUpdateAPIView(generics.UpdateAPIView):
 	queryset= Reservation.objects.all()
 	serializer_class= UpdateReservationSerializer
@@ -79,6 +84,13 @@ class UserReservationUpdateAPIView(generics.UpdateAPIView):
 		user.save(update_fields=['budget'])
 		serializer.save()
 
+		Transaction.objects.create(
+			user=user,
+			event=event,
+			amount=delta_cost,
+			num_tickets=delta_tickets
+		)
+
 class UserReservationDeleteAPIView(generics.DestroyAPIView):
 	queryset= Reservation.objects.all()
 	serializer_class = DeleteReservationSerializer
@@ -102,3 +114,10 @@ class UserReservationDeleteAPIView(generics.DestroyAPIView):
 		event.save(update_fields=['available_tickets'])
 		user.save(update_fields=['budget'])
 		reservation.delete()
+
+		Transaction.objects.create(
+			user=user,
+			event=event,
+			amount= -(event.ticket_price * reservation.num_tickets),
+			num_tickets= -reservation.num_tickets
+		)
