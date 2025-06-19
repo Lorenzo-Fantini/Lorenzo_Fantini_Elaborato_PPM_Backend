@@ -1,6 +1,6 @@
-from django.shortcuts import render
 from rest_framework import generics
 from .serializers import RegistrationSerializer
+from reservations.models import Reservation
 from django.contrib.auth import get_user_model
 from rest_framework.permissions import IsAuthenticated
 from rest_framework.authentication import TokenAuthentication
@@ -26,5 +26,11 @@ class UserDeleteAPIView(generics.DestroyAPIView):
 		return self.request.user
 
 	def perform_destroy(self, instance):
-		# Add any additional pre-deletion logic here if needed.
+		reservations = Reservation.objects.filter(user=instance)
+		for reservation in reservations:
+			event = reservation.event
+			event.available_tickets += reservation.num_tickets
+			event.save(update_fields=['available_tickets'])
+
+		reservations.delete()
 		instance.delete()
