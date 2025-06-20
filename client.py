@@ -8,7 +8,7 @@ def help():
 	print(
 		"\n help: prints this help message \n\n",
 		"register_user: starts new user registration process \n\n",
-		"delete_user: deletes existing user account \n\n",
+		"delete_user (authenticated users only): deletes existing user account \n\n",
 		"login: logs you in with the credentials of a registered user\n\n",
 		"logout: logs you out\n\n",
 		"list_events: lists available events \n\n",
@@ -132,169 +132,206 @@ def get_event_details():
 	print(response.json())
 
 def create_event(admin_auth_token):
-	url= server_url + "events/create/"
+	if admin_auth_token is None:
+		print("\nYou are not logged in\n")
+	else:
+		url= server_url + "events/create/"
 
-	title= input("\nEnter event title: ")
-	description= input("\nEnter event description: ")
-	location= input("\nEnter event location: ")
-	date_and_time= input("\nEnter the date and time of the event (in json format): ")
-	ticket_price= input("\nEnter the ticket price: ")
-	available_tickets= input("\nEnter the number of tickets: ")
-	age= input("\nEnter the event age (0/14/18): ")
+		title= input("\nEnter event title: ")
+		description= input("\nEnter event description: ")
+		location= input("\nEnter event location: ")
+		date_and_time= input("\nEnter the date and time of the event (in json format): ")
+		ticket_price= input("\nEnter the ticket price: ")
+		available_tickets= input("\nEnter the number of tickets: ")
+		age= input("\nEnter the event age (0/14/18): ")
 
-	data= {
-		"title": title,
-		"description": description,
-		"location": location,
-		"date_and_time": date_and_time,
-		"ticket_price": ticket_price,
-		"available_tickets": available_tickets,
-		"age": age
-	}
+		data= {
+			"title": title,
+			"description": description,
+			"location": location,
+			"date_and_time": date_and_time,
+			"ticket_price": ticket_price,
+			"available_tickets": available_tickets,
+			"age": age
+		}
 
-	headers= {
-		"Authorization": f"Token {admin_auth_token}"
-	}
+		headers= {
+			"Authorization": f"Token {admin_auth_token}"
+		}
 
-	try:
-		response = requests.post(url, json=data, headers=headers)
-		if response.status_code == 201:
-			print("\nCreation successful")
-		else:
-			errors = response.json()
-			print("\nCreation failed:")
-			for field, messages in errors.items():
-				print(f"{field}: {messages}")
-	except requests.RequestException as e:
-		print("\nError connecting to the API:", e)
+		try:
+			response = requests.post(url, json=data, headers=headers)
+			if response.status_code == 201:
+				print("\nCreation successful")
+			else:
+				errors = response.json()
+				print("\nCreation failed:")
+				for field, messages in errors.items():
+					print(f"{field}: {messages}")
+		except requests.RequestException as e:
+			print("\nError connecting to the API:", e)
 
 def delete_event(admin_auth_token):
-	event= input("\nInsert title of event to delete: ")
+	if admin_auth_token is None:
+		print("\nYou are not logged in\n")
+	else:
+		event= input("\nInsert title of event to delete: ")
 
-	url= server_url + "events/delete/" + event + "/"
+		url= server_url + "events/delete/" + event + "/"
 
-	headers = {
-		"Authorization": f"Token {admin_auth_token}"
-	}
+		headers = {
+			"Authorization": f"Token {admin_auth_token}"
+		}
 
-	try:
-		response = requests.delete(url, headers=headers)
-		if response.status_code == 204:
-			print("\nDeletion successful")
-		else:
-			errors = response.json()
-			print("\nDeletion failed")
-			for field, messages in errors.items():
-				print(f"{field}: {messages}")
-	except requests.RequestException as e:
-		print("\nError connecting to the API:", e)
+		try:
+			response = requests.delete(url, headers=headers)
+			if response.status_code == 204:
+				print("\nDeletion successful")
+			else:
+				errors = response.json()
+				print("\nDeletion failed")
+				for field, messages in errors.items():
+					print(f"{field}: {messages}")
+		except requests.RequestException as e:
+			print("\nError connecting to the API:", e)
 
-def list_transactions(auth_token_var):
-	url= server_url + "transactions/list/"
+def list_transactions(admin_auth_token):
+	if admin_auth_token is None:
+		print("\nYou are not logged in\n")
+	else:
+		url= server_url + "transactions/list/"
 
-	headers = {
-		"Authorization": f"Token {auth_token_var}"
-	}
+		headers = {
+			"Authorization": f"Token {admin_auth_token}"
+		}
 
-	response = requests.get(url, headers=headers)
-
-	print("\nTransactions:\n")
-	for reservation in response.json():
-		print(reservation)
-		print("\n")
+		try:
+			response = requests.get(url, headers=headers)
+			if response.status_code == 200:
+				print("\nTransactions:\n")
+				for reservation in response.json():
+					print(reservation)
+					print("\n")
+			else:
+				errors = response.json()
+				print("\nAn error occurred while fetching transactions data:")
+				for field, messages in errors.items():
+					print(f"{field}: {messages}")
+		except requests.RequestException as e:
+			print("\nError connecting to the API:", e)
 
 def list_reservations(auth_token_var):
-	url= server_url + "reservations/list/"
+	if auth_token_var is None:
+		print("\nYou are not logged in\n")
+	else:
+		url= server_url + "reservations/list/"
 
-	headers = {
-		"Authorization": f"Token {auth_token_var}"
-	}
+		headers = {
+			"Authorization": f"Token {auth_token_var}"
+		}
 
-	response = requests.get(url, headers=headers)
-
-	print("\nCurrent reservations:\n")
-	for reservation in response.json():
-		print(reservation)
-		print("\n")
+		try:
+			response = requests.get(url, headers=headers)
+			if response.status_code == 200:
+				print("\nCurrent reservations:\n")
+				for reservation in response.json():
+					print(reservation)
+					print("\n")
+			else:
+				errors = response.json()
+				print("\nAn error occurred while fetching reservations data:")
+				for field, messages in errors.items():
+					print(f"{field}: {messages}")
+		except requests.RequestException as e:
+			print("\nError connecting to the API:", e)
 
 def create_reservation(auth_token_var):
-	url= server_url + "reservations/create/"
+	if auth_token_var is None:
+		print("\nYou are not logged in\n")
+	else:
+		url= server_url + "reservations/create/"
 
-	event= input("\nEnter the name of the event you want to buy tickets for: ")
-	num_tickets= input("\nEnter the number of tickets you want to buy: ")
+		event= input("\nEnter the name of the event you want to buy tickets for: ")
+		num_tickets= input("\nEnter the number of tickets you want to buy: ")
 
-	data= {
-		"event": event,
-		"num_tickets": num_tickets
-	}
+		data= {
+			"event": event,
+			"num_tickets": num_tickets
+		}
 
-	headers = {
-		"Authorization": f"Token {auth_token_var}"
-	}
+		headers = {
+			"Authorization": f"Token {auth_token_var}"
+		}
 
-	try:
-		response = requests.post(url, json=data, headers=headers)
-		if response.status_code == 201:
-			print("\nReservation created successfully")
-		else:
-			errors = response.json()
-			print("\nReservation creation failed:")
-			for field, messages in errors.items():
-				print(f"{field}: {messages}")
-	except requests.RequestException as e:
-		print("\nError connecting to the API:", e)
+		try:
+			response = requests.post(url, json=data, headers=headers)
+			if response.status_code == 201:
+				print("\nReservation created successfully")
+			else:
+				errors = response.json()
+				print("\nReservation creation failed:")
+				for field, messages in errors.items():
+					print(f"{field}: {messages}")
+		except requests.RequestException as e:
+			print("\nError connecting to the API:", e)
 
 def update_reservation(auth_token_var):
-	reservation= input("\nEnter the title of the event of the reservation you want to update: ")
-	new_tickets_num= input("\nEnter the new number of tickets: ")
+	if auth_token_var is None:
+		print("\nYou are not logged in\n")
+	else:
+		reservation= input("\nEnter the title of the event of the reservation you want to update: ")
+		new_tickets_num= input("\nEnter the new number of tickets: ")
 
-	url= server_url + "reservations/update/" + reservation + "/"
+		url= server_url + "reservations/update/" + reservation + "/"
 
-	data= {
-		"reservation": reservation,
-		"num_tickets": new_tickets_num
-	}
+		data= {
+			"reservation": reservation,
+			"num_tickets": new_tickets_num
+		}
 
-	headers = {
-		"Authorization": f"Token {auth_token_var}"
-	}
+		headers = {
+			"Authorization": f"Token {auth_token_var}"
+		}
 
-	try:
-		response = requests.patch(url, json=data, headers=headers)
-		if response.status_code == 200:
-			print("\nReservation updated successfully")
-		else:
-			errors = response.json()
-			print("\nReservation update failed:")
-			for field, messages in errors.items():
-				print(f"{field}: {messages}")
-	except requests.RequestException as e:
-		print("\nError connecting to the API:", e)
+		try:
+			response = requests.patch(url, json=data, headers=headers)
+			if response.status_code == 200:
+				print("\nReservation updated successfully")
+			else:
+				errors = response.json()
+				print("\nReservation update failed:")
+				for field, messages in errors.items():
+					print(f"{field}: {messages}")
+		except requests.RequestException as e:
+			print("\nError connecting to the API:", e)
 
 def delete_reservation(auth_token_var):
-	reservation = input("\nEnter the title of the event of the reservation you want to delete: ")
+	if auth_token_var is None:
+		print("\nYou are not logged in\n")
+	else:
+		reservation = input("\nEnter the title of the event of the reservation you want to delete: ")
 
-	url= server_url + "reservations/delete/" + reservation + "/"
+		url= server_url + "reservations/delete/" + reservation + "/"
 
-	data= {
-		"reservation": reservation
-	}
+		data= {
+			"reservation": reservation
+		}
 
-	headers = {
-		"Authorization": f"Token {auth_token_var}"
-	}
+		headers = {
+			"Authorization": f"Token {auth_token_var}"
+		}
 
-	try:
-		response = requests.delete(url, json=data, headers=headers)
-		if response.status_code == 204:
-			print("\nReservation deleted successfully")
-		else:
-			errors = response.json()
-			print("\nReservation deletion failed:")
-			for field, messages in errors.items():
-				print(f"{field}: {messages}")
-	except requests.RequestException as e:
-		print("\nError connecting to the API:", e)
+		try:
+			response = requests.delete(url, json=data, headers=headers)
+			if response.status_code == 204:
+				print("\nReservation deleted successfully")
+			else:
+				errors = response.json()
+				print("\nReservation deletion failed:")
+				for field, messages in errors.items():
+					print(f"{field}: {messages}")
+		except requests.RequestException as e:
+			print("\nError connecting to the API:", e)
 
 if __name__ == '__main__':
 	current_action = "default"
@@ -321,6 +358,8 @@ if __name__ == '__main__':
 				create_event(auth_token)
 			case "delete_event":
 				delete_event(auth_token)
+			case "list_transactions":
+				list_transactions(auth_token)
 			case "list_reservations":
 				list_reservations(auth_token)
 			case "create_reservation":
