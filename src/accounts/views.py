@@ -1,3 +1,4 @@
+from rest_framework.response import Response
 from rest_framework import generics
 from .serializers import RegistrationSerializer
 from reservations.models import Reservation
@@ -12,6 +13,18 @@ User = get_user_model()
 class UserCreateAPIView(generics.CreateAPIView):
 	queryset= User.objects.all()
 	serializer_class= RegistrationSerializer
+
+class UserGetBudgetAPIView(generics.RetrieveAPIView):
+	authentication_classes= [
+		TokenAuthentication,
+	]
+	permission_classes= [
+		IsAuthenticated,
+	]
+
+	def get(self, request, *args, **kwargs):
+		budget= request.user.budget
+		return Response({"budget": budget})
 	
 class UserDeleteAPIView(generics.DestroyAPIView):
 	authentication_classes= [

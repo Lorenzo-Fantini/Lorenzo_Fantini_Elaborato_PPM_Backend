@@ -2,7 +2,9 @@ import requests
 from getpass import getpass
 import json
 
-server_url= "https://lorenzo-fantini-elaborato-ppm-backend.onrender.com/"
+#server_url= "https://lorenzo-fantini-elaborato-ppm-backend.onrender.com/"
+
+server_url= "http://127.0.0.1:8000/"
 
 def help():
 	print(
@@ -16,6 +18,7 @@ def help():
 		"create_event (admin only): allows you to create a new event \n\n",
 		"delete_event (admin only): allows you to delete a specific event \n\n",
 		"list_transactions (admin only): allows you to list all transactions \n\n",
+		"get_budget (authenticated users only): prints your current budget \n\n",
 		"list_reservations (authenticated users only): allows you to list all your reservations \n\n",
 		"create_reservation (authenticated users only): allows you to create a new reservation \n\n",
 		"update_reservation (authenticated users only): allows you to change the number of tickets "
@@ -69,12 +72,17 @@ def delete_user(auth_token_var):
 
 		choice= input("\nAre you sure you want to delete your account? (y/n): ")
 		if choice=="y":
-			response= requests.delete(url, headers=headers)
-			if response.status_code == 204:
-				print("\nDeletion successful\n")
-				auth_token_var= None
-			else:
-				print("\nDeletion failed\n")
+			try:
+				response = requests.delete(url, headers=headers)
+				if response.status_code == 204:
+					print("\nDeletion successful\n")
+				else:
+					errors = response.json()
+					print("\nDeletion failed:")
+					for field, messages in errors.items():
+						print(f"{field}: {messages}")
+			except requests.RequestException as e:
+				print("\nError connecting to the API:", e)
 		else:
 			print("\nDeletion cancelled\n")
 	else:
@@ -113,23 +121,39 @@ def logout(auth_token_var):
 	
 def list_events():
 	url= server_url + "events/list/"
-	
-	response= requests.get(url)
-	
-	print("\nAvailable events:\n")
-	for event in response.json():
-		print(event)
-		print("\n")
+
+	try:
+		response = requests.get(url)
+		if response.status_code == 200:
+			print("\nAvailable events:\n")
+			for event in response.json():
+				print(event)
+				print("\n")
+		else:
+			errors = response.json()
+			print("\nFailed to fetch events:")
+			for field, messages in errors.items():
+				print(f"{field}: {messages}")
+	except requests.RequestException as e:
+		print("\nError connecting to the API:", e)
 
 def get_event_details():
 	event= input("\nWhat event would you like to know more about? (type event title): ")
 
 	url= server_url + "events/detail/" + event + "/"
 
-	response= requests.get(url)
-
-	print("\n")
-	print(response.json())
+	try:
+		response = requests.get(url)
+		if response.status_code == 200:
+			print("\nEvent details:\n")
+			print(response.json())
+		else:
+			errors = response.json()
+			print("\nFailed to fetch event details:")
+			for field, messages in errors.items():
+				print(f"{field}: {messages}")
+	except requests.RequestException as e:
+		print("\nError connecting to the API:", e)
 
 def create_event(admin_auth_token):
 	if admin_auth_token is None:
@@ -215,6 +239,28 @@ def list_transactions(admin_auth_token):
 			else:
 				errors = response.json()
 				print("\nAn error occurred while fetching transactions data:")
+				for field, messages in errors.items():
+					print(f"{field}: {messages}")
+		except requests.RequestException as e:
+			print("\nError connecting to the API:", e)
+
+def get_budget(auth_token_var):
+	if auth_token_var is None:
+		print("\nYou are not logged in\n")
+	else:
+		url= server_url + "account/budget/"
+
+		headers = {
+			"Authorization": f"Token {auth_token_var}"
+		}
+
+		try:
+			response = requests.get(url, headers=headers)
+			if response.status_code == 200:
+				print("\nYour current budget is: " + str(response.json()["budget"]))
+			else:
+				errors = response.json()
+				print("\nAn error occurred while fetching budget:")
 				for field, messages in errors.items():
 					print(f"{field}: {messages}")
 		except requests.RequestException as e:
@@ -360,6 +406,8 @@ if __name__ == '__main__':
 				delete_event(auth_token)
 			case "list_transactions":
 				list_transactions(auth_token)
+			case "get_budget":
+				get_budget(auth_token)
 			case "list_reservations":
 				list_reservations(auth_token)
 			case "create_reservation":
