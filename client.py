@@ -127,6 +127,7 @@ def get_event_details():
 
 	response= requests.get(url)
 
+	print("\n")
 	print(response.json())
 
 def create_event(admin_auth_token):
@@ -164,7 +165,7 @@ def create_event(admin_auth_token):
 			for field, messages in errors.items():
 				print(f"{field}: {messages}")
 	except requests.RequestException as e:
-		print("Error connecting to the API:", e)
+		print("\nError connecting to the API:", e)
 
 def delete_event(admin_auth_token):
 	event= input("\nInsert title of event to delete: ")
@@ -185,7 +186,7 @@ def delete_event(admin_auth_token):
 			for field, messages in errors.items():
 				print(f"{field}: {messages}")
 	except requests.RequestException as e:
-		print("Error connecting to the API:", e)
+		print("\nError connecting to the API:", e)
 
 def list_reservations(auth_token_var):
 	url= server_url + "reservations/list/"
@@ -226,7 +227,7 @@ def create_reservation(auth_token_var):
 			for field, messages in errors.items():
 				print(f"{field}: {messages}")
 	except requests.RequestException as e:
-		print("Error connecting to the API:", e)
+		print("\nError connecting to the API:", e)
 
 def update_reservation(auth_token_var):
 	reservation= input("\nEnter the title of the event of the reservation you want to update: ")
@@ -253,7 +254,7 @@ def update_reservation(auth_token_var):
 			for field, messages in errors.items():
 				print(f"{field}: {messages}")
 	except requests.RequestException as e:
-		print("Error connecting to the API:", e)
+		print("\nError connecting to the API:", e)
 
 def delete_reservation(auth_token_var):
 	reservation = input("\nEnter the title of the event of the reservation you want to delete: ")
@@ -278,7 +279,7 @@ def delete_reservation(auth_token_var):
 			for field, messages in errors.items():
 				print(f"{field}: {messages}")
 	except requests.RequestException as e:
-		print("Error connecting to the API:", e)
+		print("\nError connecting to the API:", e)
 
 if __name__ == '__main__':
 	current_action = "default"
