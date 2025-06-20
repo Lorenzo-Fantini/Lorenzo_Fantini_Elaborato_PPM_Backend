@@ -15,6 +15,7 @@ def help():
 		"get_event_details: prints the details of a specific event \n\n",
 		"create_event (admin only): allows you to create a new event \n\n",
 		"delete_event (admin only): allows you to delete a specific event \n\n",
+		"list_transactions (admin only): allows you to list all transactions \n\n",
 		"list_reservations (authenticated users only): allows you to list all your reservations \n\n",
 		"create_reservation (authenticated users only): allows you to create a new reservation \n\n",
 		"update_reservation (authenticated users only): allows you to change the number of tickets "
@@ -188,6 +189,20 @@ def delete_event(admin_auth_token):
 	except requests.RequestException as e:
 		print("\nError connecting to the API:", e)
 
+def list_transactions(auth_token_var):
+	url= server_url + "transactions/list/"
+
+	headers = {
+		"Authorization": f"Token {auth_token_var}"
+	}
+
+	response = requests.get(url, headers=headers)
+
+	print("\nTransactions:\n")
+	for reservation in response.json():
+		print(reservation)
+		print("\n")
+
 def list_reservations(auth_token_var):
 	url= server_url + "reservations/list/"
 
@@ -197,7 +212,7 @@ def list_reservations(auth_token_var):
 
 	response = requests.get(url, headers=headers)
 
-	print("\ncurrent reservations:\n")
+	print("\nCurrent reservations:\n")
 	for reservation in response.json():
 		print(reservation)
 		print("\n")

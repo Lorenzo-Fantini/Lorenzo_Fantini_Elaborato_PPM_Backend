@@ -23,5 +23,6 @@ urlpatterns = [
     path("events/", include("events.urls")),
     path("reservations/", include("reservations.urls")),
     path('api-token-auth/', obtain_auth_token, name='api_token_auth'),
-    path("account/", include("accounts.urls"))
+    path("account/", include("accounts.urls")),
+    path("transactions/", include("transactions.urls")),
 ]
