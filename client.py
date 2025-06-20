@@ -1,10 +1,9 @@
 import requests
 from getpass import getpass
-import json
 
-#server_url= "https://lorenzo-fantini-elaborato-ppm-backend.onrender.com/"
+server_url= "https://lorenzo-fantini-elaborato-ppm-backend.onrender.com/"
 
-server_url= "http://127.0.0.1:8000/"
+# server_usl= "http://localhost:8000/"
 
 def help():
 	print(

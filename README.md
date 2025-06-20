@@ -1,6 +1,6 @@
 # Event reservation system
 
-This project is a Django-based web application that provides a RESTful API for managing users, events, and reservations. Users can register, manage their profiles, and book reservations for various events.
+This project is a Django-based web application that provides a RESTful API for managing users, events, and reservations. Users can register, manage their profiles, and book reservations for various events. If you use the client for the first time the api might take a bit to respond due to Render's deploy offer.
 
 ## Key features
 
